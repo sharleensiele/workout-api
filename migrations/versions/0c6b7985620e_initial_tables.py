@@ -1,8 +1,8 @@
-"""initial models
+"""initial tables
 
-Revision ID: 1da9b8ad95f7
+Revision ID: 0c6b7985620e
 Revises: 
-Create Date: 2026-04-20 20:13:49.871743
+Create Date: 2026-04-20 21:13:59.865471
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '1da9b8ad95f7'
+revision = '0c6b7985620e'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,7 +22,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('category', sa.String(), nullable=False),
-    sa.Column('equipment_needed', sa.Boolean(), nullable=True),
+    sa.Column('equipment_needed', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('workouts',
@@ -34,8 +34,8 @@ def upgrade():
     )
     op.create_table('workout_exercises',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('workout_id', sa.Integer(), nullable=False),
-    sa.Column('exercise_id', sa.Integer(), nullable=False),
+    sa.Column('workout_id', sa.Integer(), nullable=True),
+    sa.Column('exercise_id', sa.Integer(), nullable=True),
     sa.Column('reps', sa.Integer(), nullable=True),
     sa.Column('sets', sa.Integer(), nullable=True),
     sa.Column('duration_seconds', sa.Integer(), nullable=True),
