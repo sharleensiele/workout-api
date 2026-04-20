@@ -1,4 +1,5 @@
 from . import db
+from sqlalchemy.orm import validates
 
 class WorkoutExercise(db.Model):
     __tablename__ = "workout_exercises"
@@ -23,3 +24,15 @@ class WorkoutExercise(db.Model):
 
     workout = db.relationship("Workout", back_populates="workout_exercises")
     exercise = db.relationship("Exercise", back_populates="workout_exercises")
+
+    @validates("reps")
+    def validate_reps(self, key, value):
+        if value is not None and value < 0:
+            raise ValueError("Reps cannot be negative")
+        return value
+
+    @validates("sets")
+    def validate_sets(self, key, value):
+        if value is not None and value < 0:
+            raise ValueError("Sets cannot be negative")
+        return value

@@ -1,4 +1,6 @@
 from . import db
+from sqlalchemy.orm import validates
+from sqlalchemy import CheckConstraint
 
 class Workout(db.Model):
     __tablename__ = "workouts"
@@ -13,3 +15,13 @@ class Workout(db.Model):
         back_populates="workout",
         cascade="all, delete-orphan"
     )
+
+    __table_args__ = (
+        CheckConstraint('duration_minutes > 0', name='check_duration_positive'),
+    )
+
+    @validates("duration_minutes")
+    def validate_duration(self, key, value):
+        if value <= 0:
+            raise ValueError("Duration must be greater than 0")
+        return value
