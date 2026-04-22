@@ -1,28 +1,30 @@
-from flask import Blueprint, request, jsonify
-from server.models import db, WorkoutExercise, Workout, Exercise
+from flask import Blueprint, jsonify, request
+from server.models import db
+from server.models.workout_exercise import WorkoutExercise
+from server.models.workout import Workout
+from server.models.exercise import Exercise
 
 workout_exercise_bp = Blueprint("workout_exercise_bp", __name__)
 
 # -------------------------------------------------
-# ADD EXERCISE TO WORKOUT (JOIN TABLE CREATE)
+# ADD EXERCISE TO WORKOUT (CREATE LINK)
 # -------------------------------------------------
-@workout_exercise_bp.route(
-    "/workouts/<int:workout_id>/exercises/<int:exercise_id>/workout_exercises",
-    methods=["POST"]
-)
-def add_exercise_to_workout(workout_id, exercise_id):
+@workout_exercise_bp.route("/", methods=["POST"])
+def add_exercise_to_workout():
+
+    data = request.get_json()
+
+    workout_id = data.get("workout_id")
+    exercise_id = data.get("exercise_id")
 
     workout = Workout.query.get(workout_id)
     exercise = Exercise.query.get(exercise_id)
 
-    # ✅ Validate existence
     if not workout:
         return jsonify({"error": "Workout not found"}), 404
 
     if not exercise:
         return jsonify({"error": "Exercise not found"}), 404
-
-    data = request.get_json()
 
     try:
         workout_exercise = WorkoutExercise(
@@ -37,7 +39,7 @@ def add_exercise_to_workout(workout_id, exercise_id):
         db.session.commit()
 
         return jsonify({
-            "message": "Exercise successfully added to workout",
+            "message": "Exercise added to workout",
             "workout_exercise": {
                 "id": workout_exercise.id,
                 "workout_id": workout_exercise.workout_id,
@@ -54,38 +56,38 @@ def add_exercise_to_workout(workout_id, exercise_id):
 
 
 # -------------------------------------------------
-# (OPTIONAL BUT GOOD) GET ALL WORKOUT EXERCISES
+# GET ALL WORKOUT EXERCISES
 # -------------------------------------------------
-@workout_exercise_bp.route("/workout_exercises", methods=["GET"])
+@workout_exercise_bp.route("/", methods=["GET"])
 def get_workout_exercises():
 
-    all_links = WorkoutExercise.query.all()
+    links = WorkoutExercise.query.all()
 
     return jsonify([
         {
-            "id": we.id,
-            "workout_id": we.workout_id,
-            "exercise_id": we.exercise_id,
-            "reps": we.reps,
-            "sets": we.sets,
-            "duration_seconds": we.duration_seconds
+            "id": link.id,
+            "workout_id": link.workout_id,
+            "exercise_id": link.exercise_id,
+            "reps": link.reps,
+            "sets": link.sets,
+            "duration_seconds": link.duration_seconds
         }
-        for we in all_links
+        for link in links
     ]), 200
 
 
 # -------------------------------------------------
-# (OPTIONAL) DELETE LINK
+# DELETE WORKOUT EXERCISE LINK
 # -------------------------------------------------
-@workout_exercise_bp.route("/workout_exercises/<int:id>", methods=["DELETE"])
+@workout_exercise_bp.route("/<int:id>", methods=["DELETE"])
 def delete_workout_exercise(id):
 
-    we = WorkoutExercise.query.get(id)
+    link = WorkoutExercise.query.get(id)
 
-    if not we:
+    if not link:
         return jsonify({"error": "WorkoutExercise not found"}), 404
 
-    db.session.delete(we)
+    db.session.delete(link)
     db.session.commit()
 
     return jsonify({"message": "Deleted successfully"}), 200
